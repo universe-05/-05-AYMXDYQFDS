@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>思维结构风格测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+            color: #111;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 640px;
+            width: 100%;
+        }
+
+        /* 首页 */
+        .start-page {
+            text-align: center;
+            animation: fadeIn 0.6s ease;
+        }
+        .start-page h1 {
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: 6px;
+            margin-bottom: 12px;
+        }
+        .start-page .sub {
+            font-size: 0.8rem;
+            color: #888;
+            letter-spacing: 2px;
+            margin-bottom: 48px;
+        }
+        .start-page .desc {
+            font-size: 0.85rem;
+            color: #777;
+            max-width: 460px;
+            margin: 0 auto 48px;
+            line-height: 1.8;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 48px;
+            background: #111;
+            color: white;
+            border: none;
+            font-size: 0.85rem;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn:hover {
+            background: #333;
+            transform: translateY(-1px);
+        }
+        .btn-outline {
+            background: transparent;
+            color: #111;
+            border: 1px solid #111;
+        }
+        .btn-outline:hover {
+            background: #111;
+            color: white;
+        }
+
+        /* 进度条 */
+        .progress-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 48px;
+            position: relative;
+            padding: 0 8px;
+        }
+        .progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 16px;
+            right: 16px;
+            height: 1px;
+            background: #eaeaea;
+            z-index: 0;
+        }
+        .progress-node {
+            width: 8px;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 50%;
+            z-index: 1;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .progress-node.completed {
+            background: #111;
+        }
+        .progress-node.current {
+            background: #111;
+            box-shadow: 0 0 0 3px rgba(0,0,0,0.05);
+        }
+
+        /* 题目页 */
+        .quiz-page {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+        .quiz-page.active {
+            display: block;
+        }
+        .question-num {
+            font-size: 0.7rem;
+            color: #aaa;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+        }
+        .question-text {
+            font-size: 1.2rem;
+            font-weight: 400;
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .option {
+            padding: 14px 20px;
+            border: 1px solid #e6e6e6;
+            background: white;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #2c2c2c;
+            transition: 0.2s;
+        }
+        .option:hover {
+            border-color: #888;
+            padding-left: 28px;
+        }
+        .option.selected {
+            border-color: #111;
+            background: #111;
+            color: white;
+            padding-left: 28px;
+        }
+        .nav-btns {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            gap: 12px;
+        }
+        .nav-btns .btn {
+            padding: 10px 20px;
+            font-size: 0.8rem;
+        }
+        .nav-btns .btn:disabled {
+            opacity: 0.3;
+            cursor: default;
+            transform: none;
+        }
+
+        /* 结果页 */
+        .result-page {
+            display: none;
+            text-align: center;
+        }
+        .result-page.active {
+            display: block;
+        }
+        .result-label {
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            color: #aaa;
+            margin-bottom: 12px;
+        }
+        .result-type {
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: 4px;
+            margin-bottom: 32px;
+        }
+        .result-card {
+            background: #fafafa;
+            padding: 32px 24px;
+            text-align: left;
+            border-left: 3px solid #111;
+            margin-bottom: 32px;
+        }
+        .result-card p {
+            font-size: 0.9rem;
+            color: #333;
+            line-height: 1.8;
+            margin-bottom: 16px;
+        }
+        .result-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+        .result-tag {
+            padding: 4px 14px;
+            border: 1px solid #ddd;
+            font-size: 0.7rem;
+            color: #555;
+        }
+        .result-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- 首页 -->
+    <div class="start-page" id="startPage">
+        <h1>思维结构风格</h1>
+        <p class="sub">你怎么看世界</p>
+        <p class="desc">
+            或许你会注意到别人忽略的缝隙，<br>
+            或许你习惯把结论先拿出来，过程再补。<br>
+            这个测试，只做一件事：<br>
+            看见你独一无二的思维方式。
+        </p>
+        <button class="btn" onclick="startTest()">开始</button>
+    </div>
+
+    <!-- 测试页 -->
+    <div class="quiz-page" id="quizPage">
+        <div class="progress-bar" id="progressBar"></div>
+        <div class="question-num" id="questionNum"></div>
+        <div class="question-text" id="questionText"></div>
+        <div class="options" id="options"></div>
+        <div class="nav-btns">
+            <button class="btn btn-outline" id="prevBtn" onclick="prevQuestion()">← 上一题</button>
+            <button class="btn" id="nextBtn" onclick="nextQuestion()" disabled>下一题</button>
+        </div>
+    </div>
+
+    <!-- 结果页 -->
+    <div class="result-page" id="resultPage">
+        <p class="result-label">你的思维轮廓</p>
+        <h2 class="result-type" id="resultType"></h2>
+        <div class="result-card" id="resultDesc"></div>
+        <div class="result-tags" id="resultTags"></div>
+        <div class="result-actions">
+            <button class="btn btn-outline" onclick="resetTest()">重新测试</button>
+            <button class="btn" onclick="shareResult()">分享轮廓</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --------------------------------------------------------------
+    // 题目：全部来自“我们之间”的对话核心冲突
+    // 每题4个选项，避免非黑即白，指向不同的思维结构
+    // --------------------------------------------------------------
+    const QUESTIONS = [
+        { text: "你表达一个想法，别人说“听不懂”或“太跳跃”。你更倾向于怎么想？",
+          opts: [
+              "是我没讲清楚中间过程，我需要慢一点。",
+              "是他没跟上，不是我的问题。",
+              "说明我们的思维频率不一样，不怪谁。",
+              "我会先停下来，等以后找到合适的语言再说。"
+          ] },
+        { text: "你觉得自己“认知长得很快”，比如没读很多书但能抓住本质。为什么？",
+          opts: [
+              "因为我看到的是事物底层的运行结构，不是表面的信息。",
+              "因为我的直觉跑在逻辑前面，直接给我结论。",
+              "可能是我平时接触的信息质量高，自然就快了。",
+              "其实我也不确定，就是一种本能的感觉。"
+          ] },
+        { text: "当你对一个人产生“纯粹的喜欢”，不图什么。这种喜欢对你来说更像？",
+          opts: [
+              "一种看见——我看见他真实地存在着，就够了。",
+              "一种能量——它会自己来，也会自己走。",
+              "一种干扰——我需要先拆明白为什么喜欢，才能安心。",
+              "一种陪伴——不一定发生什么，但它让我更靠近自己。"
+          ] },
+        { text: "你觉得大多数人的“爱”消散，根本原因是？",
+          opts: [
+              "他们爱的不是对方本身，而是自己的投射或需求。",
+              "环境压力和现实琐碎把感情磨没了。",
+              "他们从一开始就没有真正“看见”对方。",
+              "两个人成长的节奏不一样，自然就散了。"
+          ] },
+        { text: "你在思考一个问题时，脑子里的状态更接近哪一种？",
+          opts: [
+              "一张网——各种想法同时亮起来，互相连接。",
+              "一条隧道——一直往下挖，直到看见本质。",
+              "一个漩涡——想法转得很快，但不容易抓住。",
+              "一片湖——表面平静，底下暗流涌动。"
+          ] },
+        { text: "你对“自己的独特性”是什么态度？",
+          opts: [
+              "我知道自己不一样，但不太在意别人认不认可。",
+              "我会怀疑自己是不是真的特别，怕只是错觉。",
+              "我需要被看见，否则会自我消耗。",
+              "我觉得每个人都是独特的，我不特殊。"
+          ] },
+        { text: "当你遇到一个逻辑上暂时走不通的矛盾时，你会？",
+          opts: [
+              "继续拆，直到找到那个让矛盾消失的更高视角。",
+              "先放着，等以后有了新信息再回来。",
+              "接受矛盾存在，不强行统一。",
+              "换一个方向，不在原地死磕。"
+          ] },
+        { text: "有人评价你“主体性太强”，意思是总拿自己举例。你怎么看？",
+          opts: [
+              "因为我最了解的数据来源，就是我自己。",
+              "我确实有时忽略了别人需要客观案例。",
+              "拿自己举例是最诚实的表达方式。",
+              "我会注意，但还是坚持用自己验证过的道理。"
+          ] },
+        { text: "你觉得“学历”和“认知深度”的关系是？",
+          opts: [
+              "没有必然关系，学历是系统筛选，深度是自己的事。",
+              "有关系，但不绝对。好学历能提供更好的训练环境。",
+              "学历代表一种被认证的能力，但不代表本质。",
+              "我觉得自己被误判了，但会慢慢证明。"
+          ] },
+        { text: "你更擅长哪一种思考？",
+          opts: [
+              "从没有经历的事情里，也能抓住本质。",
+              "从自己的经历里提炼出规律。",
+              "从别人的故事里，看见我自己的影子。",
+              "从对立的两边，找到统一的可能。"
+          ] },
+        { text: "如果有人说“你太理想化了”，你的真实反应是？",
+          opts: [
+              "理想化不是问题，不敢想才是。",
+              "我会怀疑自己是不是真的不落地。",
+              "对方可能只看结果，没看过程。",
+              "理想和现实之间，本来就需要人走。"
+          ] },
+        { text: "你觉得自己的表达能力，问题出在哪？",
+          opts: [
+              "我输出的是压缩包，别人没解压。",
+              "我太信任别人能跟上我的节奏。",
+              "我不喜欢包装，直接说话有时很冲。",
+              "表达本身就不是我的主要工具，想才是。"
+          ] },
+        { text: "你和大部分人的思维差异，本质上是什么？",
+          opts: [
+              "他们从经历总结规律，我从事物本身看运作。",
+              "他们线性，我网状。",
+              "他们追求结论，我追求闭环。",
+              "他们用经验判断，我用本质反推。"
+          ] },
+        { text: "你对“被人理解”这件事的渴望程度是？",
+          opts: [
+              "不强，因为我清楚自己是少数。",
+              "不强，但我希望至少有几个同频的人。",
+              "较强，表达后被误解会很难受。",
+              "我会调整表达方式，但不强求所有人都懂。"
+          ] },
+        { text: "如果把你比作一种“容器”，你觉得更接近？",
+          opts: [
+              "熔炉——所有东西进来都会被烧一遍。",
+              "网——兜住该兜的，漏掉不重要的。",
+              "镜——只反射，不评价。",
+              "根——往下扎，往深处找。"
+          ] }
+    ];
+
+    // 结果类型（不是贴标签，是描述结构）
+    const RESULTS = {
+        "压缩型闭环者": {
+            desc: "你的思维是压缩包。你习惯先把结论跑出来，过程留在后面。别人觉得你跳跃，是因为你省略了中间步骤。你不是不讲逻辑，你是逻辑跑得太快，语言跟不上。",
+            analysis: "你在答题中明显倾向本质优先、逻辑闭环、不满足于表面解释。你对“模糊”很敏感，对“别人听不懂”会自我质疑但不会否定核心。你的独特不在于知道得多，而在于处理信息的方式——网状、直觉、结论先行。你怕的不是错，是逻辑不通。",
+            tags: ["结论先行", "压缩表达", "逻辑闭环", "容易被误解"]
+        },
+        "探测型织网者": {
+            desc: "你像一张不断延伸的网。任何信息进来，你会自动寻找连接点——和历史连接、和感受连接、和别人的处境连接。你不是在“存储”，你是在“编织”。",
+            analysis: "你习惯跨域联想，不满足于单一答案。你容易被“意义”牵引，也容易被“矛盾”吸引。你的思考方式让很多人觉得你飘，但你知道那是在找更深的结构。",
+            tags: ["网状联想", "跨界整合", "意义敏感", "不易聚焦"]
+        },
+        "深潜型追问者": {
+            desc: "你是一条往下挖的隧道。你不怕慢，怕浅。一个问题到你手里，不挖到本质你不会停。你不在意别人是不是已经到过那里，你在意自己有没有亲自走通。",
+            analysis: "你表现出强烈的底层追问倾向。你习惯拆、习惯溯源、习惯问“为什么”。这种思维让你孤独，但也让你极少被忽悠。你需要的不是更多信息，而是更好的框架。",
+            tags: ["本质驱动", "溯源倾向", "逻辑洁癖", "孤独但不虚"]
+        },
+        "镜渊型观察者": {
+            desc: "你是一面深潭。外界的刺激进来，你不会立刻反应，而是先让它沉下去，在里面照一照、转一圈再出来。你的思考有滞后感，但出来的东西往往是经过沉淀的。",
+            analysis: "你倾向于把外部信息转化为内在体验。你容易被情绪、氛围、隐喻牵动，但又不沉溺于此。你的表达常常是诗性的、留白的，懂的人会懂，不懂的人会觉得你模糊。",
+            tags: ["内省主导", "意象感知", "表达留白", "需要被翻译"]
+        },
+        "流变型适应者": {
+            desc: "你是一段流动的水。你不僵在任何一种思维定式里——有时深挖，有时铺网，有时内观。你根据问题换频道，不给自己贴死标签。",
+            analysis: "你的答题没有极端倾向，在不同维度间游走。你更相信“情境”而不是“本质”，更相信“当下”而不是“体系”。你的优势是灵活，风险是容易被环境带偏。",
+            tags: ["认知灵活", "情境驱动", "反标签", "易被低估"]
+        }
+    };
+
+    let current = 0;
+    let userAnswers = new Array(QUESTIONS.length).fill(null);
+
+    // 进度条
+    function buildProgress() {
+        const bar = document.getElementById('progressBar');
+        bar.innerHTML = '';
+        for (let i = 0; i < QUESTIONS.length; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'progress-node';
+            if (userAnswers[i] !== null) dot.classList.add('completed');
+            if (i === current) dot.classList.add('current');
+            dot.onclick = () => jumpTo(i);
+            bar.appendChild(dot);
+        }
+    }
+
+    function jumpTo(idx) {
+        current = idx;
+        renderQuestion();
+    }
+
+    function renderQuestion() {
+        const q = QUESTIONS[current];
+        document.getElementById('questionNum').innerText = `Q${current+1} / ${QUESTIONS.length}`;
+        document.getElementById('questionText').innerText = q.text;
+        const optsDiv = document.getElementById('options');
+        optsDiv.innerHTML = '';
+        q.opts.forEach((opt, idx) => {
+            const optDiv = document.createElement('div');
+            optDiv.className = 'option';
+            if (userAnswers[current] === idx) optDiv.classList.add('selected');
+            optDiv.innerText = opt;
+            optDiv.onclick = () => selectOption(idx);
+            optsDiv.appendChild(optDiv);
+        });
+
+        document.getElementById('prevBtn').disabled = current === 0;
+        document.getElementById('nextBtn').disabled = userAnswers[current] === null;
+        document.getElementById('nextBtn').innerText = current === QUESTIONS.length-1 ? '查看结果' : '下一题';
+        buildProgress();
+    }
+
+    function selectOption(idx) {
+        userAnswers[current] = idx;
+        renderQuestion();
+    }
+
+    function nextQuestion() {
+        if (userAnswers[current] === null) return;
+        if (current < QUESTIONS.length-1) {
+            current++;
+            renderQuestion();
+        } else {
+            computeResult();
+        }
+    }
+
+    function prevQuestion() {
+        if (current > 0) {
+            current--;
+            renderQuestion();
+        }
+    }
+
+    // 简单的结果映射（基于答题倾向分布）
+    function computeResult() {
+        // 统计某几类倾向（简化但足够区分）
+        let score = { A:0, B:0, C:0, D:0 };
+        // 这里做简化逻辑：根据关键题映射
+        // 题1: 压缩倾向 vs 包容
+        if (userAnswers[0] === 0) score.A += 2;
+        if (userAnswers[0] === 1) score.B += 1;
+        // 题5: 网状 vs 深挖
+        if (userAnswers[4] === 0) score.A += 2;
+        if (userAnswers[4] === 1) score.C += 2;
+        // 题7: 矛盾处理
+        if (userAnswers[6] === 0) score.C += 2;
+        // 题10: 本质 vs 经验
+        if (userAnswers[9] === 0) score.A += 2;
+        // 题13: 本质 vs 线性
+        if (userAnswers[12] === 0) score.A += 2;
+        if (userAnswers[12] === 1) score.B += 2;
+        
+        let resultType = "压缩型闭环者";
+        if (score.A >= 4) resultType = "压缩型闭环者";
+        else if (score.B >= 3) resultType = "探测型织网者";
+        else if (score.C >= 3) resultType = "深潜型追问者";
+        else resultType = "流变型适应者";
+        
+        const data = RESULTS[resultType];
+        document.getElementById('resultType').innerText = resultType;
+        document.getElementById('resultDesc').innerHTML = `<p>${data.desc}</p><p style="margin-top:16px">${data.analysis}</p>`;
+        document.getElementById('resultTags').innerHTML = data.tags.map(t => `<span class="result-tag">${t}</span>`).join('');
+        
+        document.getElementById('quizPage').classList.remove('active');
+        document.getElementById('resultPage').classList.add('active');
+    }
+
+    function startTest() {
+        document.getElementById('startPage').style.display = 'none';
+        document.getElementById('quizPage').classList.add('active');
+        buildProgress();
+        renderQuestion();
+    }
+
+    function resetTest() {
+        current = 0;
+        userAnswers = new Array(QUESTIONS.length).fill(null);
+        document.getElementById('resultPage').classList.remove('active');
+        document.getElementById('startPage').style.display = 'block';
+    }
+
+    function shareResult() {
+        const type = document.getElementById('resultType').innerText;
+        if (navigator.share) {
+            navigator.share({ title: '我的思维结构', text: `我的思维轮廓是：${type}` });
+        } else {
+            navigator.clipboard.writeText(`我的思维轮廓是：${type}`);
+            alert('已复制到剪贴板');
+        }
+    }
+
+    // 暴露全局函数
+    window.startTest = startTest;
+    window.nextQuestion = nextQuestion;
+    window.prevQuestion = prevQuestion;
+    window.resetTest = resetTest;
+    window.shareResult = shareResult;
+    window.jumpTo = jumpTo;
+</script>
+</body>
+</html>
