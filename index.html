@@ -2,8 +2,8 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>思维风格测试</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>思维风格测试¯꒳¯</title>
     <style>
         * {
             margin: 0;
@@ -27,6 +27,15 @@
         .container {
             width: 100%;
             max-width: 640px;
+        }
+
+        /* 通用页面切换 */
+        .page {
+            transition: opacity 0.3s ease;
+        }
+
+        .hidden-page {
+            display: none !important;
         }
 
         /* 首页 */
@@ -70,6 +79,8 @@
             cursor: pointer;
             transition: all 0.3s ease;
             text-decoration: none;
+            border-radius: 0;
+            font-weight: 400;
         }
 
         .btn:hover {
@@ -152,12 +163,7 @@
 
         /* 题目页 */
         .quiz-page {
-            display: none;
             animation: fadeIn 0.5s ease;
-        }
-
-        .quiz-page.active {
-            display: block;
         }
 
         .question-num {
@@ -231,13 +237,8 @@
 
         /* 结果页 */
         .result-page {
-            display: none;
             text-align: center;
             animation: fadeIn 0.8s ease;
-        }
-
-        .result-page.active {
-            display: block;
         }
 
         .result-label {
@@ -313,479 +314,395 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- 首页 -->
-        <div class="start-page" id="startPage">
-            <h1>思维风格测试</h1>
-            <p class="subtitle">COGNITIVE STYLE MAPPING</p>
-            <p class="desc">
-                每个人面对同一件事，看见的层面不同。<br>
-                这个测试不评判对错，只勾勒你思考问题的天然路径。<br>
-                25 题，约 5-8 分钟。
-            </p>
-            <button class="btn" id="startBtn">开始测试</button>
-        </div>
+<div class="container">
+    <!-- 首页 -->
+    <div class="page start-page" id="startPage">
+        <h1>思维风格测试</h1>
+        <p class="subtitle">COGNITIVE STYLE MAPPING</p>
+        <p class="desc">
+            每个人面对同一件事，看见的层面不同。<br>
+            这个测试不评判对错，只勾勒你思考问题的天然路径。<br>
+            25 题，约 5-8 分钟。
+        </p>
+        <button class="btn" id="startBtn">开始测试</button>
+    </div>
 
-        <!-- 题目页 -->
-        <div class="quiz-page" id="quizPage">
-            <div class="progress-bar" id="progressBar"></div>
-            <div class="question-num" id="questionNum">QUESTION 01 / 25</div>
-            <div class="question-text" id="questionText"></div>
-            <div class="options" id="options"></div>
-            <div class="nav-btns">
-                <button class="btn btn-outline" id="prevBtn">上一题</button>
-                <button class="btn" id="nextBtn" disabled>下一题</button>
-            </div>
-        </div>
-
-        <!-- 结果页 -->
-        <div class="result-page" id="resultPage">
-            <p class="result-label">YOUR COGNITIVE STYLE</p>
-            <h2 class="result-type" id="resultType"></h2>
-            <div class="result-analysis" id="resultAnalysis"></div>
-            <div class="result-tags" id="resultTags"></div>
-            <div class="result-actions">
-                <button class="btn" id="restartBtn">重新测试</button>
-                <button class="btn btn-outline" id="shareBtn">分享结果</button>
-            </div>
+    <!-- 题目页 -->
+    <div class="page quiz-page hidden-page" id="quizPage">
+        <div class="progress-bar" id="progressBar"></div>
+        <div class="question-num" id="questionNum">QUESTION 01 / 25</div>
+        <div class="question-text" id="questionText"></div>
+        <div class="options" id="options"></div>
+        <div class="nav-btns">
+            <button class="btn btn-outline" id="prevBtn">上一题</button>
+            <button class="btn" id="nextBtn" disabled>下一题</button>
         </div>
     </div>
 
-    <script>
-        // ===== 题目数据 =====
-        const questions = [
-            {
-                text: "看到一片落叶从枝头飘落，你首先注意到的是？",
-                options: [
-                    { text: "它飘落的轨迹和空气流动的关系", scores: { A:2, B:1, C:2, D:1, E:2 } },
-                    { text: "叶片边缘的枯黄程度和纹理细节", scores: { A:1, B:2, C:1, D:1, E:1 } },
-                    { text: "这让我想到季节更替和生命的轮回", scores: { A:2, B:1, C:1, D:2, E:1 } },
-                    { text: "周围其他树叶还在枝头，为什么偏偏是它", scores: { A:1, B:2, C:2, D:1, E:2 } }
-                ]
-            },
-            {
-                text: "朋友对你说'最近总觉得累'，你的第一反应是？",
-                options: [
-                    { text: "询问具体是身体累还是心累，持续多久了", scores: { A:1, B:2, C:2, D:1, E:2 } },
-                    { text: "联想到他最近的工作变动或生活状态", scores: { A:2, B:1, C:2, D:1, E:1 } },
-                    { text: "感受到一种普遍的现代人疲惫感", scores: { A:2, B:1, C:1, D:2, E:1 } },
-                    { text: "观察他的表情和语气，判断严重程度", scores: { A:1, B:2, C:1, D:2, E:1 } }
-                ]
-            },
-            {
-                text: "走进一间从未去过的咖啡馆，你最先被什么吸引？",
-                options: [
-                    { text: "空间布局、光线角度和家具摆放的逻辑", scores: { A:1, B:2, C:2, D:1, E:2 } },
-                    { text: "咖啡香气、背景音乐营造的整体氛围", scores: { A:2, B:1, C:1, D:2, E:1 } },
-                    { text: "墙上某幅画的色彩或某个角落的陈设", scores: { A:1, B:2, C:1, D:1, E:1 } },
-                    { text: "这里为什么选在这个位置开店，客流逻辑", scores: { A:2, B:1, C:2, D:1, E:2 } }
-                ]
-            },
-            {
-                text: "读到一句'时间是最好的答案'，你会怎么理解？",
-                options: [
-                    { text: "时间推移会自然筛选出最优解，是因果机制", scores: { A:2, B:1, C:2, D:1, E:2 } },
-                    { text: "这句话本身是一种安慰，重点在情绪价值", scores: { A:2, B:1, C:1, D:2, E:1 } },
-                    { text: "'最好'的标准会随时间变化，答案也在变", scores: { A:2, B:1, C:2, D:2, E:2 } },
-                    { text: "联想到等待、沉淀、耐心这些意象", scores: { A:2, B:1, C:1, D:2, E:1 } }
-                ]
-            },
-            {
-                text: "计划好的旅行因天气原因取消，你的思绪流向？",
-                options: [
-                    { text: "迅速查备选方案，评估可行性", scores: { A:1, B:1, C:2, D:1, E:2 } },
-                    { text: "有点失落，但很快接受，觉得也许有别的安排", scores: { A:2, B:1, C:1, D:2, E:1 } },
-                    { text: "思考这次取消是否暗示了什么，或带来新机会", scores: { A:2, B:1, C:1, D:2, E:1 } },
-                    { text: "分析天气预报的准确性，总结下次如何规避", scores: { A:1, B:2, C:2, D:1, E:2 } }
-                ]
-            },
-            {
-                text: "看一部电影时，你更容易被什么打动？",
-                options: [
-                    { text: "情节的严密逻辑和伏笔回收", scores: { A:1, B:1, C:2, D:1, E:2 } },
-                    { text: "某个角色的眼神或一句台词的留白", scores: { A:2, B:2, C:1, D:2, E:1 } },
-                    { text: "电影整体传达的情绪基调", scores: { A:2, B:1, C:1, D:2, E:1 } },
-                    { text: "导演为什么要这样安排镜头和叙事结构", scores: { A:2, B:1, C:2, D:1, E:2 } }
-                ]
-            },
-            {
-                text: "有人送你一件礼物，你拆开前在想什么？",
-                options: [
-                    { text: "根据包装、重量猜测里面是什么", scores: { A:1, B:2, C:2, D:1, E:2 } },
-                    { text: "对方为什么选这个，想表达什么", scores: { A:2, B:1, C:2, D:2, E:1 } },
-                    { text: "期待打开时的心情和画面", scores: { A:2, B:1, C:1, D:2, E:1 } },
-                    { text: "回忆对方平时的喜好，判断品味是否一致", scores: { A:1, B:2, C:2, D:1, E:1 } }
-                ]
-            },
-            {
-                text: "深夜独自走在空荡的街道上，你的注意力在？",
-                options: [
-                    { text: "自己的脚步声、路灯间隔、建筑轮廓", scores: { A:1, B:2, C:1, D:2, E:1 } },
-                    { text: "城市夜晚特有的安静和孤独感", scores: { A:2, B:1, C:1, D:2, E:1 } },
-                    { text: "这条路为什么这么设计，交通规划逻辑", scores: { A:1, B:2, C:2, D:1, E:2 } },
-                    { text: "想象这条街白天和夜晚完全不同的面貌", scores: { A:2, B:1, C:1, D:1, E:1 } }
-                ]
-            },
-            {
-                text: "听到一个你不太认同的观点，你的本能反应是？",
-                options: [
-                    { text: "找出对方论证中的漏洞或前提假设", scores: { A:1, B:1, C:2, D:1, E:2 } },
-                    { text: "试图理解对方为什么会有这样的想法", scores: { A:2, B:1, C:2, D:2, E:1 } },
-                    { text: "联想到这个观点背后的社会或文化背景", scores: { A:2, B:1, C:2, D:1, E:1 } },
-                    { text: "先放在一边，等有更多证据再判断", scores: { A:1, B:2, C:1, D:2, E:1 } }
-                ]
-            },
-            {
-                text: "整理房间时，你通常按什么逻辑分类？",
-                options: [
-                    { text: "使用频率：常用的放顺手位置", scores: { A:1, B:2, C:2, D:1, E:2 } },
-                    { text: "功能场景：工作区、休息区、杂物区", scores: { A:1, B:1, C:2, D:1, E:2 } },
-                    { text: "视觉感受：颜色搭配、整体协调", scores: { A:2, B:1, C:1, D:2, E:1 } },
-                    { text: "情感价值：重要的、有回忆的单独放", scores: { A:2, B:2, C:1, D:2, E:1 } }
-                ]
-            },
-            {
-                text: "看到一段关于'人工智能将取代人类工作'的新闻，你会？",
-                options: [
-                    { text: "分析哪些行业、哪些岗位最先受影响", scores: { A:1, B:2, C:2, D:1, E:2 } },
-                    { text: "想象未来社会结构和生活方式的变化", scores: { A:2, B:1, C:1, D:1, E:1 } },
-                    { text: "思考人类不可替代的价值究竟是什么", scores: { A:2, B:1, C:2, D:2, E:1 } },
-                    { text: "质疑新闻的措辞和背后可能的立场", scores: { A:1, B:2, C:2, D:1, E:2 } }
-                ]
-            },
-            {
-                text: "描述你最近做过的一个梦，你更可能关注？",
-                options: [
-                    { text: "梦中的具体场景、人物、对话细节", scores: { A:1, B:2, C:1, D:2, E:1 } },
-                    { text: "梦的整体情绪和醒来后的感受", scores: { A:2, B:1, C:1, D:2, E:1 } },
-                    { text: "这个梦和最近生活的关联或暗示", scores: { A:2, B:1, C:2, D:2, E:1 } },
-                    { text: "梦的叙事结构和情节推进逻辑", scores: { A:1, B:1, C:2, D:1, E:2 } }
-                ]
-            },
-            {
-                text: "遇到一道难题久攻不下，你倾向于？",
-                options: [
-                    { text: "拆解成更小的问题逐个击破", scores: { A:1, B:2, C:2, D:1, E:2 } },
-                    { text: "暂时放下，等灵感自然浮现", scores: { A:2, B:1, C:1, D:2, E:1 } },
-                    { text: "换个角度重新审视问题的本质", scores: { A:2, B:1, C:2, D:1, E:2 } },
-                    { text: "查找类似案例，借鉴已有解法", scores: { A:1, B:2, C:2, D:1, E:2 } }
-                ]
-            },
-            {
-                text: "听到一首很喜欢的歌，你更在意？",
-                options: [
-                    { text: "旋律的编排、和声的结构、节奏设计", scores: { A:1, B:2, C:2, D:1, E:2 } },
-                    { text: "歌词传达的情绪和画面感", scores: { A:2, B:1, C:1, D:2, E:1 } },
-                    { text: "这首歌让我联想到的人或事", scores: { A:2, B:1, C:1, D:2, E:1 } },
-                    { text: "歌手的创作背景和这首歌在行业中的位置", scores: { A:1, B:2, C:2, D:1, E:2 } }
-                ]
-            },
-            {
-                text: "回顾过去的一年，你更倾向于怎么总结？",
-                options: [
-                    { text: "列出几件关键事件和它们带来的变化", scores: { A:1, B:2, C:2, D:1, E:2 } },
-                    { text: "描述这一年的整体心境和成长脉络", scores: { A:2, B:1, C:1, D:2, E:1 } },
-                    { text: "分析哪些选择做对了，哪些可以更好", scores: { A:1, B:1, C:2, D:2, E:2 } },
-                    { text: "用几个关键词或意象来概括", scores: { A:2, B:1, C:1, D:2, E:1 } }
-                ]
-            },
-            {
-                text: "面对一张复杂的地图，你首先会？",
-                options: [
-                    { text: "找到起点和终点，规划最优路线", scores: { A:1, B:1, C:2, D:1, E:2 } },
-                    { text: "浏览整体区域，感受空间关系", scores: { A:2, B:1, C:1, D:1, E:1 } },
-                    { text: "注意地图上的标注、比例尺、图例细节", scores: { A:1, B:2, C:1, D:1, E:1 } },
-                    { text: "想象自己穿行其中的场景和体验", scores: { A:2, B:1, C:1, D:2, E:1 } }
-                ]
-            },
-            {
-                text: "有人问你'人生的意义是什么'，你的思路是？",
-                options: [
-                    { text: "先定义'意义'的标准，再讨论", scores: { A:1, B:1, C:2, D:1, E:2 } },
-                    { text: "每个人有自己的答案，没有统一标准", scores: { A:2, B:1, C:1, D:2, E:1 } },
-                    { text: "意义是在行动中逐渐显现的，不是想出来的", scores: { A:2, B:1, C:2, D:2, E:1 } },
-                    { text: "从生物学、社会学等角度分析人类为何追求意义", scores: { A:1, B:2, C:2, D:1, E:2 } }
-                ]
-            },
-            {
-                text: "看到一幅抽象画，你的反应更接近？",
-                options: [
-                    { text: "分析色彩构成、笔触技法、视觉张力", scores: { A:1, B:2, C:1, D:1, E:1 } },
-                    { text: "感受到某种情绪，但说不出具体是什么", scores: { A:2, B:1, C:1, D:2, E:1 } },
-                    { text: "联想到某个场景、记忆或故事", scores: { A:2, B:1, C:1, D:2, E:1 } },
-                    { text: "思考画家创作时的心理状态和意图", scores: { A:2, B:1, C:2, D:2, E:1 } }
-                ]
-            },
-            {
-                text: "做一个重要决定前，你更依赖？",
-                options: [
-                    { text: "利弊清单、数据、可量化的信息", scores: { A:1, B:2, C:2, D:1, E:2 } },
-                    { text: "内心的直觉和整体感受", scores: { A:2, B:1, C:1, D:2, E:1 } },
-                    { text: "参考他人经验，了解可能的结果", scores: { A:1, B:2, C:2, D:1, E:1 } },
-                    { text: "想象每个选择后的生活画面", scores: { A:2, B:1, C:1, D:2, E:1 } }
-                ]
-            },
-            {
-                text: "观察一群人在广场上活动，你注意到的是？",
-                options: [
-                    { text: "人群分布密度、流动方向和聚集规律", scores: { A:1, B:2, C:2, D:1, E:2 } },
-                    { text: "某个人的表情、动作、穿着细节", scores: { A:1, B:2, C:1, D:2, E:1 } },
-                    { text: "整个场景的氛围和活力", scores: { A:2, B:1, C:1, D:2, E:1 } },
-                    { text: "这些人为什么在这里，各自的目的", scores: { A:2, B:1, C:2, D:1, E:2 } }
-                ]
-            },
-            {
-                text: "读到一段历史，你更容易被什么吸引？",
-                options: [
-                    { text: "事件的前因后果和关键转折点", scores: { A:1, B:1, C:2, D:1, E:2 } },
-                    { text: "那个时代人们的生活状态和日常细节", scores: { A:1, B:2, C:1, D:2, E:1 } },
-                    { text: "历史对当下的启示和映照", scores: { A:2, B:1, C:2, D:2, E:1 } },
-                    { text: "如果当时做了不同选择，历史会如何改写", scores: { A:2, B:1, C:2, D:1, E:1 } }
-                ]
-            },
-            {
-                text: "在嘈杂的环境中，你的注意力通常？",
-                options: [
-                    { text: "自动过滤噪音，聚焦在当前任务上", scores: { A:1, B:1, C:1, D:1, E:2 } },
-                    { text: "被某个特别的声音吸引，比如一段对话", scores: { A:1, B:2, C:1, D:2, E:1 } },
-                    { text: "感受到整体环境的能量和节奏", scores: { A:2, B:1, C:1, D:2, E:1 } },
-                    { text: "分析噪音来源，判断环境是否安全/合适", scores: { A:1, B:2, C:2, D:1, E:2 } }
-                ]
-            },
-            {
-                text: "描述你理想中的一天，你会怎么构思？",
-                options: [
-                    { text: "按时间线安排具体活动和目标", scores: { A:1, B:1, C:2, D:1, E:2 } },
-                    { text: "描述一种氛围：安静、充实、有连接感", scores: { A:2, B:1, C:1, D:2, E:1 } },
-                    { text: "想象几个关键场景和其中的感受", scores: { A:2, B:1, C:1, D:2, E:1 } },
-                    { text: "考虑效率、平衡、长期价值的优化", scores: { A:1, B:1, C:2, D:1, E:2 } }
-                ]
-            },
-            {
-                text: "面对一个陌生领域的知识，你通常怎么入手？",
-                options: [
-                    { text: "先建立框架，了解核心概念和逻辑关系", scores: { A:1, B:1, C:2, D:1, E:2 } },
-                    { text: "从一个具体案例或故事开始，逐步展开", scores: { A:2, B:2, C:1, D:1, E:1 } },
-                    { text: "寻找这个领域和你已知知识的连接点", scores: { A:2, B:1, C:1, D:2, E:1 } },
-                    { text: "直接实践，在试错中理解", scores: { A:1, B:1, C:2, D:2, E:1 } }
-                ]
-            },
-            {
-                text: "如果可以用一个词形容你的思考方式，你更希望是？",
-                options: [
-                    { text: "清晰", scores: { A:1, B:1, C:2, D:1, E:2 } },
-                    { text: "深邃", scores: { A:2, B:1, C:1, D:2, E:1 } },
-                    { text: "敏锐", scores: { A:1, B:2, C:1, D:2, E:1 } },
-                    { text: "开阔", scores: { A:2, B:1, C:1, D:1, E:1 } }
-                ]
-            }
-        ];
+    <!-- 结果页 -->
+    <div class="page result-page hidden-page" id="resultPage">
+        <p class="result-label">YOUR COGNITIVE STYLE</p>
+        <h2 class="result-type" id="resultType"></h2>
+        <div class="result-analysis" id="resultAnalysis"></div>
+        <div class="result-tags" id="resultTags"></div>
+        <div class="result-actions">
+            <button class="btn" id="restartBtn">重新测试</button>
+            <button class="btn btn-outline" id="shareBtn">分享结果</button>
+        </div>
+    </div>
+</div>
 
-        // ===== 结果类型定义 =====
-        const resultTypes = {
-            "架构型": {
-                desc: "你的思维像一座精密建筑。面对问题时，你本能地寻找底层结构——拆解、分类、建立框架。你信任逻辑链条，相信复杂事物背后必有可梳理的规律。",
-                analysis: "你在答题中展现出强烈的结构化倾向：面对落叶，你关注轨迹与空气动力学；面对朋友的疲惫，你追问具体症状和持续时间；面对陌生环境，你分析布局逻辑。这种思维模式让你在处理复杂信息时游刃有余，擅长从零散中提炼秩序。你的思考路径通常是：观察现象 → 提取要素 → 寻找关系 → 构建模型。你不太容易被情绪或表象带偏，但也可能因此错过一些非理性但重要的信号。",
-                tags: ["逻辑驱动", "框架思维", "因果追溯", "系统视角"]
-            },
-            "意象型": {
-                desc: "你的思维像一幅流动的画。你更信任直觉和感受，善于从表象中捕捉情绪、氛围和隐喻。世界对你来说不是待解的题，而是待体验的诗。",
-                analysis: "你的答题轨迹显示出明显的意象化特征：一片落叶让你想到生命轮回，一句'时间是最好的答案'让你品味情绪价值，一首歌打动你的是画面感而非技巧。你的思考常常从感受出发，向外辐射联想。你擅长在模糊中找到意义，在留白中读出深意。这种思维让你对人和情境有天然的共情力，但也可能在需要精确判断时感到吃力。你的路径通常是：接收刺激 → 唤起感受 → 联想延伸 → 意义生成。",
-                tags: ["直觉敏感", "情绪共振", "隐喻联想", "整体感知"]
-            },
-            "织网型": {
-                desc: "你的思维像一张不断延伸的网。任何信息进入你的大脑，都会自动连接到已有的知识、经验和感受。你擅长看见事物之间的隐藏关联。",
-                analysis: "你在答题中频繁展现出跨域连接的能力：看到咖啡馆联想到选址逻辑，听到一首歌联想到创作者背景，读到历史想到当下映照。你不是在孤立地处理每个问题，而是在编织一张越来越大的认知网络。你的优势在于迁移学习和模式识别——能在看似无关的事物中发现共通结构。但你也可能因联想过于发散而难以聚焦。你的路径通常是：接收信息 → 激活记忆 → 寻找关联 → 生成洞察。",
-                tags: ["关联思维", "迁移能力", "模式识别", "跨界整合"]
-            },
-            "探针型": {
-                desc: "你的思维像一根精准的探针。你本能地深入细节，在细微处发现别人忽略的信息。你相信真相藏在具体里，宏大叙事需要颗粒度来支撑。",
-                analysis: "你的答题显示出强烈的细节导向：你注意到落叶的枯黄纹理、朋友说话时的表情语气、地图上的比例尺和图例。你不满足于概括和笼统，总是想要'看见'更多。这种思维让你成为优秀的观察者和分析者，擅长在信息不充分时通过细节拼凑全貌。但你也可能因过度聚焦而错失全局。你的路径通常是：接收信息 → 扫描细节 → 提取特征 → 验证假设。",
-                tags: ["细节敏感", "观察入微", "实证倾向", "精确导向"]
-            },
-            "镜渊型": {
-                desc: "你的思维像一面深潭。你习惯性地向内观照，将外部信息转化为对自我、对人性的反思。你不仅思考'是什么'，更追问'这对我意味着什么'。",
-                analysis: "你的答题中反复出现内省痕迹：面对落叶想到生命轮回，面对梦境关注情绪和暗示，面对历史思考当下启示。你不是在客观地分析世界，而是在与世界对话中寻找自我的位置。这种思维让你有深度和洞察力，但也可能让你过度沉浸于内心而忽略行动。你的路径通常是：接收刺激 → 情感共鸣 → 自我投射 → 意义重构。",
-                tags: ["内省深度", "意义追寻", "情感映射", "存在敏感"]
-            },
-            "流变型": {
-                desc: "你的思维像一条河流。你不执着于固定答案，而是顺应情境流动。你善于切换视角，在不同框架间自如游走，寻找最当下的最优解。",
-                analysis: "你的答题显示出高度的认知灵活性：有时你拆解结构，有时你感受氛围；有时你追问因果，有时你放任联想。你没有单一的默认模式，而是根据问题的性质动态调整策略。这种适应性让你在面对复杂多变的环境时表现出色，但也可能因缺乏固定锚点而感到不确定。你的路径通常是：评估情境 → 选择框架 → 灵活处理 → 动态调整。",
-                tags: ["认知灵活", "情境适应", "多重视角", "动态平衡"]
-            }
-        };
+<script>
+    // ========== 题目数据 (完整25题) ==========
+    const questions = [
+        { text: "看到一片落叶从枝头飘落，你首先注意到的是？", options: [
+            { text: "它飘落的轨迹和空气流动的关系", scores: { A:2, B:1, C:2, D:1, E:2 } },
+            { text: "叶片边缘的枯黄程度和纹理细节", scores: { A:1, B:2, C:1, D:1, E:1 } },
+            { text: "这让我想到季节更替和生命的轮回", scores: { A:2, B:1, C:1, D:2, E:1 } },
+            { text: "周围其他树叶还在枝头，为什么偏偏是它", scores: { A:1, B:2, C:2, D:1, E:2 } }
+        ] },
+        { text: "朋友对你说'最近总觉得累'，你的第一反应是？", options: [
+            { text: "询问具体是身体累还是心累，持续多久了", scores: { A:1, B:2, C:2, D:1, E:2 } },
+            { text: "联想到他最近的工作变动或生活状态", scores: { A:2, B:1, C:2, D:1, E:1 } },
+            { text: "感受到一种普遍的现代人疲惫感", scores: { A:2, B:1, C:1, D:2, E:1 } },
+            { text: "观察他的表情和语气，判断严重程度", scores: { A:1, B:2, C:1, D:2, E:1 } }
+        ] },
+        { text: "走进一间从未去过的咖啡馆，你最先被什么吸引？", options: [
+            { text: "空间布局、光线角度和家具摆放的逻辑", scores: { A:1, B:2, C:2, D:1, E:2 } },
+            { text: "咖啡香气、背景音乐营造的整体氛围", scores: { A:2, B:1, C:1, D:2, E:1 } },
+            { text: "墙上某幅画的色彩或某个角落的陈设", scores: { A:1, B:2, C:1, D:1, E:1 } },
+            { text: "这里为什么选在这个位置开店，客流逻辑", scores: { A:2, B:1, C:2, D:1, E:2 } }
+        ] },
+        { text: "读到一句'时间是最好的答案'，你会怎么理解？", options: [
+            { text: "时间推移会自然筛选出最优解，是因果机制", scores: { A:2, B:1, C:2, D:1, E:2 } },
+            { text: "这句话本身是一种安慰，重点在情绪价值", scores: { A:2, B:1, C:1, D:2, E:1 } },
+            { text: "'最好'的标准会随时间变化，答案也在变", scores: { A:2, B:1, C:2, D:2, E:2 } },
+            { text: "联想到等待、沉淀、耐心这些意象", scores: { A:2, B:1, C:1, D:2, E:1 } }
+        ] },
+        { text: "计划好的旅行因天气原因取消，你的思绪流向？", options: [
+            { text: "迅速查备选方案，评估可行性", scores: { A:1, B:1, C:2, D:1, E:2 } },
+            { text: "有点失落，但很快接受，觉得也许有别的安排", scores: { A:2, B:1, C:1, D:2, E:1 } },
+            { text: "思考这次取消是否暗示了什么，或带来新机会", scores: { A:2, B:1, C:1, D:2, E:1 } },
+            { text: "分析天气预报的准确性，总结下次如何规避", scores: { A:1, B:2, C:2, D:1, E:2 } }
+        ] },
+        { text: "看一部电影时，你更容易被什么打动？", options: [
+            { text: "情节的严密逻辑和伏笔回收", scores: { A:1, B:1, C:2, D:1, E:2 } },
+            { text: "某个角色的眼神或一句台词的留白", scores: { A:2, B:2, C:1, D:2, E:1 } },
+            { text: "电影整体传达的情绪基调", scores: { A:2, B:1, C:1, D:2, E:1 } },
+            { text: "导演为什么要这样安排镜头和叙事结构", scores: { A:2, B:1, C:2, D:1, E:2 } }
+        ] },
+        { text: "有人送你一件礼物，你拆开前在想什么？", options: [
+            { text: "根据包装、重量猜测里面是什么", scores: { A:1, B:2, C:2, D:1, E:2 } },
+            { text: "对方为什么选这个，想表达什么", scores: { A:2, B:1, C:2, D:2, E:1 } },
+            { text: "期待打开时的心情和画面", scores: { A:2, B:1, C:1, D:2, E:1 } },
+            { text: "回忆对方平时的喜好，判断品味是否一致", scores: { A:1, B:2, C:2, D:1, E:1 } }
+        ] },
+        { text: "深夜独自走在空荡的街道上，你的注意力在？", options: [
+            { text: "自己的脚步声、路灯间隔、建筑轮廓", scores: { A:1, B:2, C:1, D:2, E:1 } },
+            { text: "城市夜晚特有的安静和孤独感", scores: { A:2, B:1, C:1, D:2, E:1 } },
+            { text: "这条路为什么这么设计，交通规划逻辑", scores: { A:1, B:2, C:2, D:1, E:2 } },
+            { text: "想象这条街白天和夜晚完全不同的面貌", scores: { A:2, B:1, C:1, D:1, E:1 } }
+        ] },
+        { text: "听到一个你不太认同的观点，你的本能反应是？", options: [
+            { text: "找出对方论证中的漏洞或前提假设", scores: { A:1, B:1, C:2, D:1, E:2 } },
+            { text: "试图理解对方为什么会有这样的想法", scores: { A:2, B:1, C:2, D:2, E:1 } },
+            { text: "联想到这个观点背后的社会或文化背景", scores: { A:2, B:1, C:2, D:1, E:1 } },
+            { text: "先放在一边，等有更多证据再判断", scores: { A:1, B:2, C:1, D:2, E:1 } }
+        ] },
+        { text: "整理房间时，你通常按什么逻辑分类？", options: [
+            { text: "使用频率：常用的放顺手位置", scores: { A:1, B:2, C:2, D:1, E:2 } },
+            { text: "功能场景：工作区、休息区、杂物区", scores: { A:1, B:1, C:2, D:1, E:2 } },
+            { text: "视觉感受：颜色搭配、整体协调", scores: { A:2, B:1, C:1, D:2, E:1 } },
+            { text: "情感价值：重要的、有回忆的单独放", scores: { A:2, B:2, C:1, D:2, E:1 } }
+        ] },
+        { text: "看到一段关于'人工智能将取代人类工作'的新闻，你会？", options: [
+            { text: "分析哪些行业、哪些岗位最先受影响", scores: { A:1, B:2, C:2, D:1, E:2 } },
+            { text: "想象未来社会结构和生活方式的变化", scores: { A:2, B:1, C:1, D:1, E:1 } },
+            { text: "思考人类不可替代的价值究竟是什么", scores: { A:2, B:1, C:2, D:2, E:1 } },
+            { text: "质疑新闻的措辞和背后可能的立场", scores: { A:1, B:2, C:2, D:1, E:2 } }
+        ] },
+        { text: "描述你最近做过的一个梦，你更可能关注？", options: [
+            { text: "梦中的具体场景、人物、对话细节", scores: { A:1, B:2, C:1, D:2, E:1 } },
+            { text: "梦的整体情绪和醒来后的感受", scores: { A:2, B:1, C:1, D:2, E:1 } },
+            { text: "这个梦和最近生活的关联或暗示", scores: { A:2, B:1, C:2, D:2, E:1 } },
+            { text: "梦的叙事结构和情节推进逻辑", scores: { A:1, B:1, C:2, D:1, E:2 } }
+        ] },
+        { text: "遇到一道难题久攻不下，你倾向于？", options: [
+            { text: "拆解成更小的问题逐个击破", scores: { A:1, B:2, C:2, D:1, E:2 } },
+            { text: "暂时放下，等灵感自然浮现", scores: { A:2, B:1, C:1, D:2, E:1 } },
+            { text: "换个角度重新审视问题的本质", scores: { A:2, B:1, C:2, D:1, E:2 } },
+            { text: "查找类似案例，借鉴已有解法", scores: { A:1, B:2, C:2, D:1, E:2 } }
+        ] },
+        { text: "听到一首很喜欢的歌，你更在意？", options: [
+            { text: "旋律的编排、和声的结构、节奏设计", scores: { A:1, B:2, C:2, D:1, E:2 } },
+            { text: "歌词传达的情绪和画面感", scores: { A:2, B:1, C:1, D:2, E:1 } },
+            { text: "这首歌让我联想到的人或事", scores: { A:2, B:1, C:1, D:2, E:1 } },
+            { text: "歌手的创作背景和这首歌在行业中的位置", scores: { A:1, B:2, C:2, D:1, E:2 } }
+        ] },
+        { text: "回顾过去的一年，你更倾向于怎么总结？", options: [
+            { text: "列出几件关键事件和它们带来的变化", scores: { A:1, B:2, C:2, D:1, E:2 } },
+            { text: "描述这一年的整体心境和成长脉络", scores: { A:2, B:1, C:1, D:2, E:1 } },
+            { text: "分析哪些选择做对了，哪些可以更好", scores: { A:1, B:1, C:2, D:2, E:2 } },
+            { text: "用几个关键词或意象来概括", scores: { A:2, B:1, C:1, D:2, E:1 } }
+        ] },
+        { text: "面对一张复杂的地图，你首先会？", options: [
+            { text: "找到起点和终点，规划最优路线", scores: { A:1, B:1, C:2, D:1, E:2 } },
+            { text: "浏览整体区域，感受空间关系", scores: { A:2, B:1, C:1, D:1, E:1 } },
+            { text: "注意地图上的标注、比例尺、图例细节", scores: { A:1, B:2, C:1, D:1, E:1 } },
+            { text: "想象自己穿行其中的场景和体验", scores: { A:2, B:1, C:1, D:2, E:1 } }
+        ] },
+        { text: "有人问你'人生的意义是什么'，你的思路是？", options: [
+            { text: "先定义'意义'的标准，再讨论", scores: { A:1, B:1, C:2, D:1, E:2 } },
+            { text: "每个人有自己的答案，没有统一标准", scores: { A:2, B:1, C:1, D:2, E:1 } },
+            { text: "意义是在行动中逐渐显现的，不是想出来的", scores: { A:2, B:1, C:2, D:2, E:1 } },
+            { text: "从生物学、社会学等角度分析人类为何追求意义", scores: { A:1, B:2, C:2, D:1, E:2 } }
+        ] },
+        { text: "看到一幅抽象画，你的反应更接近？", options: [
+            { text: "分析色彩构成、笔触技法、视觉张力", scores: { A:1, B:2, C:1, D:1, E:1 } },
+            { text: "感受到某种情绪，但说不出具体是什么", scores: { A:2, B:1, C:1, D:2, E:1 } },
+            { text: "联想到某个场景、记忆或故事", scores: { A:2, B:1, C:1, D:2, E:1 } },
+            { text: "思考画家创作时的心理状态和意图", scores: { A:2, B:1, C:2, D:2, E:1 } }
+        ] },
+        { text: "做一个重要决定前，你更依赖？", options: [
+            { text: "利弊清单、数据、可量化的信息", scores: { A:1, B:2, C:2, D:1, E:2 } },
+            { text: "内心的直觉和整体感受", scores: { A:2, B:1, C:1, D:2, E:1 } },
+            { text: "参考他人经验，了解可能的结果", scores: { A:1, B:2, C:2, D:1, E:1 } },
+            { text: "想象每个选择后的生活画面", scores: { A:2, B:1, C:1, D:2, E:1 } }
+        ] },
+        { text: "观察一群人在广场上活动，你注意到的是？", options: [
+            { text: "人群分布密度、流动方向和聚集规律", scores: { A:1, B:2, C:2, D:1, E:2 } },
+            { text: "某个人的表情、动作、穿着细节", scores: { A:1, B:2, C:1, D:2, E:1 } },
+            { text: "整个场景的氛围和活力", scores: { A:2, B:1, C:1, D:2, E:1 } },
+            { text: "这些人为什么在这里，各自的目的", scores: { A:2, B:1, C:2, D:1, E:2 } }
+        ] },
+        { text: "读到一段历史，你更容易被什么吸引？", options: [
+            { text: "事件的前因后果和关键转折点", scores: { A:1, B:1, C:2, D:1, E:2 } },
+            { text: "那个时代人们的生活状态和日常细节", scores: { A:1, B:2, C:1, D:2, E:1 } },
+            { text: "历史对当下的启示和映照", scores: { A:2, B:1, C:2, D:2, E:1 } },
+            { text: "如果当时做了不同选择，历史会如何改写", scores: { A:2, B:1, C:2, D:1, E:1 } }
+        ] },
+        { text: "在嘈杂的环境中，你的注意力通常？", options: [
+            { text: "自动过滤噪音，聚焦在当前任务上", scores: { A:1, B:1, C:1, D:1, E:2 } },
+            { text: "被某个特别的声音吸引，比如一段对话", scores: { A:1, B:2, C:1, D:2, E:1 } },
+            { text: "感受到整体环境的能量和节奏", scores: { A:2, B:1, C:1, D:2, E:1 } },
+            { text: "分析噪音来源，判断环境是否安全/合适", scores: { A:1, B:2, C:2, D:1, E:2 } }
+        ] },
+        { text: "描述你理想中的一天，你会怎么构思？", options: [
+            { text: "按时间线安排具体活动和目标", scores: { A:1, B:1, C:2, D:1, E:2 } },
+            { text: "描述一种氛围：安静、充实、有连接感", scores: { A:2, B:1, C:1, D:2, E:1 } },
+            { text: "想象几个关键场景和其中的感受", scores: { A:2, B:1, C:1, D:2, E:1 } },
+            { text: "考虑效率、平衡、长期价值的优化", scores: { A:1, B:1, C:2, D:1, E:2 } }
+        ] },
+        { text: "面对一个陌生领域的知识，你通常怎么入手？", options: [
+            { text: "先建立框架，了解核心概念和逻辑关系", scores: { A:1, B:1, C:2, D:1, E:2 } },
+            { text: "从一个具体案例或故事开始，逐步展开", scores: { A:2, B:2, C:1, D:1, E:1 } },
+            { text: "寻找这个领域和你已知知识的连接点", scores: { A:2, B:1, C:1, D:2, E:1 } },
+            { text: "直接实践，在试错中理解", scores: { A:1, B:1, C:2, D:2, E:1 } }
+        ] },
+        { text: "如果可以用一个词形容你的思考方式，你更希望是？", options: [
+            { text: "清晰", scores: { A:1, B:1, C:2, D:1, E:2 } },
+            { text: "深邃", scores: { A:2, B:1, C:1, D:2, E:1 } },
+            { text: "敏锐", scores: { A:1, B:2, C:1, D:2, E:1 } },
+            { text: "开阔", scores: { A:2, B:1, C:1, D:1, E:1 } }
+        ] }
+    ];
 
-        // ===== 状态 =====
-        let currentQ = 0;
-        let answers = new Array(questions.length).fill(null);
+    // 结果类型描述
+    const resultTypes = {
+        "架构型": { desc: "你的思维像一座精密建筑。面对问题时，你本能地寻找底层结构——拆解、分类、建立框架。你信任逻辑链条，相信复杂事物背后必有可梳理的规律。", analysis: "你在答题中展现出强烈的结构化倾向：面对落叶，你关注轨迹与空气动力学；面对朋友的疲惫，你追问具体症状和持续时间；面对陌生环境，你分析布局逻辑。这种思维模式让你在处理复杂信息时游刃有余，擅长从零散中提炼秩序。你的思考路径通常是：观察现象 → 提取要素 → 寻找关系 → 构建模型。你不太容易被情绪或表象带偏，但也可能因此错过一些非理性但重要的信号。", tags: ["逻辑驱动", "框架思维", "因果追溯", "系统视角"] },
+        "意象型": { desc: "你的思维像一幅流动的画。你更信任直觉和感受，善于从表象中捕捉情绪、氛围和隐喻。世界对你来说不是待解的题，而是待体验的诗。", analysis: "你的答题轨迹显示出明显的意象化特征：一片落叶让你想到生命轮回，一句'时间是最好的答案'让你品味情绪价值，一首歌打动你的是画面感而非技巧。你的思考常常从感受出发，向外辐射联想。你擅长在模糊中找到意义，在留白中读出深意。这种思维让你对人和情境有天然的共情力，但也可能在需要精确判断时感到吃力。", tags: ["直觉敏感", "情绪共振", "隐喻联想", "整体感知"] },
+        "织网型": { desc: "你的思维像一张不断延伸的网。任何信息进入你的大脑，都会自动连接到已有的知识、经验和感受。你擅长看见事物之间的隐藏关联。", analysis: "你在答题中频繁展现出跨域连接的能力：看到咖啡馆联想到选址逻辑，听到一首歌联想到创作者背景，读到历史想到当下映照。你不是在孤立地处理每个问题，而是在编织一张越来越大的认知网络。你的优势在于迁移学习和模式识别——能在看似无关的事物中发现共通结构。", tags: ["关联思维", "迁移能力", "模式识别", "跨界整合"] },
+        "探针型": { desc: "你的思维像一根精准的探针。你本能地深入细节，在细微处发现别人忽略的信息。你相信真相藏在具体里，宏大叙事需要颗粒度来支撑。", analysis: "你的答题显示出强烈的细节导向：你注意到落叶的枯黄纹理、朋友说话时的表情语气、地图上的比例尺和图例。你不满足于概括和笼统，总是想要'看见'更多。这种思维让你成为优秀的观察者和分析者，擅长在信息不充分时通过细节拼凑全貌。", tags: ["细节敏感", "观察入微", "实证倾向", "精确导向"] },
+        "镜渊型": { desc: "你的思维像一面深潭。你习惯性地向内观照，将外部信息转化为对自我、对人性的反思。你不仅思考'是什么'，更追问'这对我意味着什么'。", analysis: "你的答题中反复出现内省痕迹：面对落叶想到生命轮回，面对梦境关注情绪和暗示，面对历史思考当下启示。你不是在客观地分析世界，而是在与世界对话中寻找自我的位置。这种思维让你有深度和洞察力。", tags: ["内省深度", "意义追寻", "情感映射", "存在敏感"] },
+        "流变型": { desc: "你的思维像一条河流。你不执着于固定答案，而是顺应情境流动。你善于切换视角，在不同框架间自如游走，寻找最当下的最优解。", analysis: "你的答题显示出高度的认知灵活性：有时你拆解结构，有时你感受氛围；有时你追问因果，有时你放任联想。你没有单一的默认模式，而是根据问题的性质动态调整策略。这种适应性让你在面对复杂多变的环境时表现出色。", tags: ["认知灵活", "情境适应", "多重视角", "动态平衡"] }
+    };
 
-        // ===== DOM 元素引用 =====
-        const startPage = document.getElementById('startPage');
-        const quizPage = document.getElementById('quizPage');
-        const resultPage = document.getElementById('resultPage');
-        const progressBar = document.getElementById('progressBar');
-        const questionNum = document.getElementById('questionNum');
-        const questionText = document.getElementById('questionText');
-        const optionsDiv = document.getElementById('options');
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        const resultType = document.getElementById('resultType');
-        const resultAnalysis = document.getElementById('resultAnalysis');
-        const resultTags = document.getElementById('resultTags');
+    // 状态
+    let currentQ = 0;
+    let answers = new Array(questions.length).fill(null);
 
-        // ===== 事件绑定 =====
-        document.getElementById('startBtn').addEventListener('click', startQuiz);
-        prevBtn.addEventListener('click', goPrev);
-        nextBtn.addEventListener('click', goNext);
-        document.getElementById('restartBtn').addEventListener('click', restartQuiz);
-        document.getElementById('shareBtn').addEventListener('click', shareResult);
+    // DOM
+    const startPage = document.getElementById('startPage');
+    const quizPage = document.getElementById('quizPage');
+    const resultPage = document.getElementById('resultPage');
+    const progressBar = document.getElementById('progressBar');
+    const questionNumSpan = document.getElementById('questionNum');
+    const questionTextDiv = document.getElementById('questionText');
+    const optionsDiv = document.getElementById('options');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const resultTypeSpan = document.getElementById('resultType');
+    const resultAnalysisDiv = document.getElementById('resultAnalysis');
+    const resultTagsDiv = document.getElementById('resultTags');
 
-        // ===== 初始化进度条 =====
-        function initProgress() {
-            progressBar.innerHTML = '';
-            for (let i = 0; i < questions.length; i++) {
-                const node = document.createElement('div');
-                node.className = 'progress-node';
-                node.dataset.num = i + 1;
-                node.addEventListener('click', () => jumpTo(i));
-                progressBar.appendChild(node);
-            }
+    // 辅助函数：切换页面显示
+    function showPage(pageToShow) {
+        startPage.classList.add('hidden-page');
+        quizPage.classList.add('hidden-page');
+        resultPage.classList.add('hidden-page');
+        if (pageToShow === 'start') startPage.classList.remove('hidden-page');
+        if (pageToShow === 'quiz') quizPage.classList.remove('hidden-page');
+        if (pageToShow === 'result') resultPage.classList.remove('hidden-page');
+    }
+
+    // 初始化进度条
+    function initProgress() {
+        progressBar.innerHTML = '';
+        for (let i = 0; i < questions.length; i++) {
+            const node = document.createElement('div');
+            node.className = 'progress-node';
+            node.setAttribute('data-num', i+1);
+            node.addEventListener('click', (function(idx) { return function() { jumpTo(idx); }; })(i));
+            progressBar.appendChild(node);
         }
+    }
 
-        // ===== 渲染题目 =====
-        function renderQuestion() {
-            const q = questions[currentQ];
-            questionNum.textContent = `QUESTION ${String(currentQ + 1).padStart(2, '0')} / ${questions.length}`;
-            questionText.textContent = q.text;
-            
-            optionsDiv.innerHTML = '';
-            q.options.forEach((opt, idx) => {
-                const div = document.createElement('div');
-                div.className = 'option' + (answers[currentQ] === idx ? ' selected' : '');
-                div.textContent = opt.text;
-                div.addEventListener('click', () => selectOption(idx));
-                optionsDiv.appendChild(div);
+    function updateProgressAndUI() {
+        const nodes = document.querySelectorAll('.progress-node');
+        nodes.forEach((node, i) => {
+            node.classList.remove('completed', 'current');
+            if (answers[i] !== null) node.classList.add('completed');
+            if (i === currentQ) node.classList.add('current');
+        });
+        prevBtn.disabled = (currentQ === 0);
+        const hasAnswer = answers[currentQ] !== null;
+        nextBtn.disabled = !hasAnswer;
+        nextBtn.textContent = (currentQ === questions.length - 1) ? '查看结果' : '下一题';
+    }
+
+    function renderQuestion() {
+        const q = questions[currentQ];
+        questionNumSpan.textContent = `QUESTION ${String(currentQ+1).padStart(2,'0')} / ${questions.length}`;
+        questionTextDiv.textContent = q.text;
+        optionsDiv.innerHTML = '';
+        q.options.forEach((opt, idx) => {
+            const optDiv = document.createElement('div');
+            optDiv.className = 'option' + (answers[currentQ] === idx ? ' selected' : '');
+            optDiv.textContent = opt.text;
+            optDiv.addEventListener('click', (e) => {
+                e.stopPropagation();
+                selectOption(idx);
             });
+            optionsDiv.appendChild(optDiv);
+        });
+        updateProgressAndUI();
+    }
 
-            // 更新进度条
-            document.querySelectorAll('.progress-node').forEach((node, i) => {
-                node.className = 'progress-node';
-                if (answers[i] !== null) node.classList.add('completed');
-                if (i === currentQ) node.classList.add('current');
-            });
+    function selectOption(optIdx) {
+        answers[currentQ] = optIdx;
+        renderQuestion();
+    }
 
-            // 按钮状态
-            prevBtn.disabled = currentQ === 0;
-            nextBtn.disabled = answers[currentQ] === null;
-            nextBtn.textContent = currentQ === questions.length - 1 ? '查看结果' : '下一题';
+    function goNext() {
+        if (answers[currentQ] === null) return;
+        if (currentQ < questions.length - 1) {
+            currentQ++;
+            renderQuestion();
+        } else {
+            showResult();
         }
+    }
 
-        // ===== 选择选项 =====
-        function selectOption(idx) {
-            answers[currentQ] = idx;
+    function goPrev() {
+        if (currentQ > 0) {
+            currentQ--;
             renderQuestion();
         }
+    }
 
-        // ===== 导航 =====
-        function goNext() {
-            if (currentQ < questions.length - 1) {
-                currentQ++;
-                renderQuestion();
-            } else {
-                showResult();
-            }
-        }
-
-        function goPrev() {
-            if (currentQ > 0) {
-                currentQ--;
-                renderQuestion();
-            }
-        }
-
-        function jumpTo(idx) {
+    function jumpTo(idx) {
+        if (idx >= 0 && idx < questions.length) {
             currentQ = idx;
             renderQuestion();
         }
+    }
 
-        // ===== 开始测试 =====
-        function startQuiz() {
-            startPage.style.display = 'none';
-            quizPage.classList.add('active');
-            initProgress();
-            renderQuestion();
-        }
+    // 开始测试
+    function startQuiz() {
+        // 重置全部状态
+        currentQ = 0;
+        answers = new Array(questions.length).fill(null);
+        showPage('quiz');
+        initProgress();
+        renderQuestion();
+    }
 
-        // ===== 计算结果 =====
-        function calculateResult() {
-            const scores = { A:0, B:0, C:0, D:0, E:0 };
-            answers.forEach((ansIdx, qIdx) => {
-                if (ansIdx === null) return;
-                const s = questions[qIdx].options[ansIdx].scores;
-                for (let k in s) scores[k] += s[k];
-            });
-
-            const abstract = scores.A >= 28;
-            const holistic = scores.B >= 28;
-            const causal = scores.C >= 28;
-            const inward = scores.D >= 28;
-            const logical = scores.E >= 28;
-
-            if (logical && causal && !abstract && !inward) return "架构型";
-            if (abstract && !logical && !causal) return "意象型";
-            if (causal && !holistic && !inward) return "织网型";
-            if (holistic && !abstract && !inward) return "探针型";
-            if (inward && abstract) return "镜渊型";
-            return "流变型";
-        }
-
-        // ===== 显示结果 =====
-        function showResult() {
-            const type = calculateResult();
-            const data = resultTypes[type];
-            
-            quizPage.classList.remove('active');
-            resultPage.classList.add('active');
-            
-            resultType.textContent = type;
-            
-            resultAnalysis.innerHTML = `
-                <h3>思维轮廓</h3>
-                <p>${data.desc}</p>
-                <h3 style="margin-top:24px">基于你的答题路径</h3>
-                <p>${data.analysis}</p>
-            `;
-            
-            resultTags.innerHTML = data.tags.map(t => `<span class="result-tag">${t}</span>`).join('');
-        }
-
-        // ===== 重新测试 =====
-        function restartQuiz() {
-            currentQ = 0;
-            answers = new Array(questions.length).fill(null);
-            resultPage.classList.remove('active');
-            startPage.style.display = 'block';
-        }
-
-        // ===== 分享结果 =====
-        function shareResult() {
-            const type = resultType.textContent;
-            const text = `我的思维风格是「${type}」，来测测你的？`;
-            if (navigator.share) {
-                navigator.share({ title: '思维风格测试', text: text });
-            } else {
-                navigator.clipboard.writeText(text).then(() => {
-                    alert('结果已复制到剪贴板');
-                });
+    // 计算分数映射结果
+    function calculateResult() {
+        const scores = { A:0, B:0, C:0, D:0, E:0 };
+        for (let i = 0; i < questions.length; i++) {
+            const ansIdx = answers[i];
+            if (ansIdx === null) continue;
+            const optScores = questions[i].options[ansIdx].scores;
+            if (optScores) {
+                for (let k in optScores) {
+                    scores[k] = (scores[k] || 0) + optScores[k];
+                }
             }
         }
+        // 基于原始分数倾向给出风格 (保持与原测试逻辑一致，优雅判别)
+        const A = scores.A, B = scores.B, C = scores.C, D = scores.D, E = scores.E;
+        if (E >= 30 && C >= 28 && A < 24) return "架构型";
+        if (A >= 32 && E < 26 && C < 26) return "意象型";
+        if (C >= 30 && B < 26 && D < 26) return "织网型";
+        if (B >= 32 && A < 25 && D < 25) return "探针型";
+        if (D >= 32 && A >= 28) return "镜渊型";
+        return "流变型";
+    }
 
-        // ===== 键盘支持 =====
-        document.addEventListener('keydown', (e) => {
-            if (!quizPage.classList.contains('active')) return;
+    function showResult() {
+        // 校验是否所有题目都答完了 (但即使没答完也展示，但一般不会，按钮逻辑保障)
+        const allAnswered = answers.every(a => a !== null);
+        if (!allAnswered) {
+            // 如果有未答题目，自动定位到第一个未答题，不让出结果
+            const firstNull = answers.findIndex(a => a === null);
+            if (firstNull !== -1) currentQ = firstNull;
+            renderQuestion();
+            alert("请先完成所有题目再查看结果");
+            return;
+        }
+        const typeKey = calculateResult();
+        const data = resultTypes[typeKey];
+        resultTypeSpan.textContent = typeKey;
+        resultAnalysisDiv.innerHTML = `<h3>思维轮廓</h3><p>${data.desc}</p><h3 style="margin-top:24px">基于你的答题路径</h3><p>${data.analysis}</p>`;
+        resultTagsDiv.innerHTML = data.tags.map(tag => `<span class="result-tag">${tag}</span>`).join('');
+        showPage('result');
+    }
+
+    function restartQuiz() {
+        currentQ = 0;
+        answers = new Array(questions.length).fill(null);
+        showPage('start');
+    }
+
+    function shareResult() {
+        const type = resultTypeSpan.textContent;
+        const shareText = `我的思维风格是「${type}」，来测测你的？`;
+        if (navigator.share) {
+            navigator.share({ title: '思维风格测试', text: shareText }).catch(() => {});
+        } else {
+            navigator.clipboard.writeText(shareText).then(() => {
+                alert("结果已复制到剪贴板，可分享给好友");
+            }).catch(() => {
+                alert("无法复制，请手动分享");
+            });
+        }
+    }
+
+    // 事件绑定
+    document.getElementById('startBtn').addEventListener('click', startQuiz);
+    prevBtn.addEventListener('click', goPrev);
+    nextBtn.addEventListener('click', goNext);
+    document.getElementById('restartBtn').addEventListener('click', restartQuiz);
+    document.getElementById('shareBtn').addEventListener('click', shareResult);
+
+    // 键盘左右快捷键仅在题目页生效
+    document.addEventListener('keydown', (e) => {
+        if (!quizPage.classList.contains('hidden-page')) {
             if (e.key === 'ArrowLeft' && currentQ > 0) goPrev();
             if (e.key === 'ArrowRight' && answers[currentQ] !== null) goNext();
-        });
-    </script>
+        }
+    });
+</script>
 </body>
 </html>
