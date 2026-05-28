@@ -323,7 +323,7 @@
                 这个测试不评判对错，只勾勒你思考问题的天然路径。<br>
                 25 题，约 5-8 分钟。
             </p>
-            <button class="btn" onclick="startQuiz()">开始测试</button>
+            <button class="btn" id="startBtn">开始测试</button>
         </div>
 
         <!-- 题目页 -->
@@ -333,8 +333,8 @@
             <div class="question-text" id="questionText"></div>
             <div class="options" id="options"></div>
             <div class="nav-btns">
-                <button class="btn btn-outline" id="prevBtn" onclick="goPrev()">上一题</button>
-                <button class="btn" id="nextBtn" onclick="goNext()" disabled>下一题</button>
+                <button class="btn btn-outline" id="prevBtn">上一题</button>
+                <button class="btn" id="nextBtn" disabled>下一题</button>
             </div>
         </div>
 
@@ -345,15 +345,14 @@
             <div class="result-analysis" id="resultAnalysis"></div>
             <div class="result-tags" id="resultTags"></div>
             <div class="result-actions">
-                <button class="btn" onclick="restartQuiz()">重新测试</button>
-                <button class="btn btn-outline" onclick="shareResult()">分享结果</button>
+                <button class="btn" id="restartBtn">重新测试</button>
+                <button class="btn btn-outline" id="shareBtn">分享结果</button>
             </div>
         </div>
     </div>
 
     <script>
         // ===== 题目数据 =====
-        // 维度：A=抽象/具象, B=整体/细节, C=因果/联想, D=内省/外察, E=逻辑/直觉
         const questions = [
             {
                 text: "看到一片落叶从枝头飘落，你首先注意到的是？",
@@ -365,7 +364,7 @@
                 ]
             },
             {
-                text: "朋友对你说\"最近总觉得累\"，你的第一反应是？",
+                text: "朋友对你说'最近总觉得累'，你的第一反应是？",
                 options: [
                     { text: "询问具体是身体累还是心累，持续多久了", scores: { A:1, B:2, C:2, D:1, E:2 } },
                     { text: "联想到他最近的工作变动或生活状态", scores: { A:2, B:1, C:2, D:1, E:1 } },
@@ -383,11 +382,11 @@
                 ]
             },
             {
-                text: "读到一句\"时间是最好的答案\"，你会怎么理解？",
+                text: "读到一句'时间是最好的答案'，你会怎么理解？",
                 options: [
                     { text: "时间推移会自然筛选出最优解，是因果机制", scores: { A:2, B:1, C:2, D:1, E:2 } },
                     { text: "这句话本身是一种安慰，重点在情绪价值", scores: { A:2, B:1, C:1, D:2, E:1 } },
-                    { text: \"最好\"的标准会随时间变化，答案也在变", scores: { A:2, B:1, C:2, D:2, E:2 } },
+                    { text: "'最好'的标准会随时间变化，答案也在变", scores: { A:2, B:1, C:2, D:2, E:2 } },
                     { text: "联想到等待、沉淀、耐心这些意象", scores: { A:2, B:1, C:1, D:2, E:1 } }
                 ]
             },
@@ -446,7 +445,7 @@
                 ]
             },
             {
-                text: "看到一段关于\"人工智能将取代人类工作\"的新闻，你会？",
+                text: "看到一段关于'人工智能将取代人类工作'的新闻，你会？",
                 options: [
                     { text: "分析哪些行业、哪些岗位最先受影响", scores: { A:1, B:2, C:2, D:1, E:2 } },
                     { text: "想象未来社会结构和生活方式的变化", scores: { A:2, B:1, C:1, D:1, E:1 } },
@@ -500,9 +499,9 @@
                 ]
             },
             {
-                text: "有人问你\"人生的意义是什么\"，你的思路是？",
+                text: "有人问你'人生的意义是什么'，你的思路是？",
                 options: [
-                    { text: "先定义\"意义\"的标准，再讨论", scores: { A:1, B:1, C:2, D:1, E:2 } },
+                    { text: "先定义'意义'的标准，再讨论", scores: { A:1, B:1, C:2, D:1, E:2 } },
                     { text: "每个人有自己的答案，没有统一标准", scores: { A:2, B:1, C:1, D:2, E:1 } },
                     { text: "意义是在行动中逐渐显现的，不是想出来的", scores: { A:2, B:1, C:2, D:2, E:1 } },
                     { text: "从生物学、社会学等角度分析人类为何追求意义", scores: { A:1, B:2, C:2, D:1, E:2 } }
@@ -591,7 +590,7 @@
             },
             "意象型": {
                 desc: "你的思维像一幅流动的画。你更信任直觉和感受，善于从表象中捕捉情绪、氛围和隐喻。世界对你来说不是待解的题，而是待体验的诗。",
-                analysis: "你的答题轨迹显示出明显的意象化特征：一片落叶让你想到生命轮回，一句\"时间是最好的答案\"让你品味情绪价值，一首歌打动你的是画面感而非技巧。你的思考常常从感受出发，向外辐射联想。你擅长在模糊中找到意义，在留白中读出深意。这种思维让你对人和情境有天然的共情力，但也可能在需要精确判断时感到吃力。你的路径通常是：接收刺激 → 唤起感受 → 联想延伸 → 意义生成。",
+                analysis: "你的答题轨迹显示出明显的意象化特征：一片落叶让你想到生命轮回，一句'时间是最好的答案'让你品味情绪价值，一首歌打动你的是画面感而非技巧。你的思考常常从感受出发，向外辐射联想。你擅长在模糊中找到意义，在留白中读出深意。这种思维让你对人和情境有天然的共情力，但也可能在需要精确判断时感到吃力。你的路径通常是：接收刺激 → 唤起感受 → 联想延伸 → 意义生成。",
                 tags: ["直觉敏感", "情绪共振", "隐喻联想", "整体感知"]
             },
             "织网型": {
@@ -601,11 +600,11 @@
             },
             "探针型": {
                 desc: "你的思维像一根精准的探针。你本能地深入细节，在细微处发现别人忽略的信息。你相信真相藏在具体里，宏大叙事需要颗粒度来支撑。",
-                analysis: "你的答题显示出强烈的细节导向：你注意到落叶的枯黄纹理、朋友说话时的表情语气、地图上的比例尺和图例。你不满足于概括和笼统，总是想要\"看见\"更多。这种思维让你成为优秀的观察者和分析者，擅长在信息不充分时通过细节拼凑全貌。但你也可能因过度聚焦而错失全局。你的路径通常是：接收信息 → 扫描细节 → 提取特征 → 验证假设。",
+                analysis: "你的答题显示出强烈的细节导向：你注意到落叶的枯黄纹理、朋友说话时的表情语气、地图上的比例尺和图例。你不满足于概括和笼统，总是想要'看见'更多。这种思维让你成为优秀的观察者和分析者，擅长在信息不充分时通过细节拼凑全貌。但你也可能因过度聚焦而错失全局。你的路径通常是：接收信息 → 扫描细节 → 提取特征 → 验证假设。",
                 tags: ["细节敏感", "观察入微", "实证倾向", "精确导向"]
             },
             "镜渊型": {
-                desc: "你的思维像一面深潭。你习惯性地向内观照，将外部信息转化为对自我、对人性的反思。你不仅思考\"是什么\"，更追问\"这对我意味着什么\"。",
+                desc: "你的思维像一面深潭。你习惯性地向内观照，将外部信息转化为对自我、对人性的反思。你不仅思考'是什么'，更追问'这对我意味着什么'。",
                 analysis: "你的答题中反复出现内省痕迹：面对落叶想到生命轮回，面对梦境关注情绪和暗示，面对历史思考当下启示。你不是在客观地分析世界，而是在与世界对话中寻找自我的位置。这种思维让你有深度和洞察力，但也可能让你过度沉浸于内心而忽略行动。你的路径通常是：接收刺激 → 情感共鸣 → 自我投射 → 意义重构。",
                 tags: ["内省深度", "意义追寻", "情感映射", "存在敏感"]
             },
@@ -620,34 +619,52 @@
         let currentQ = 0;
         let answers = new Array(questions.length).fill(null);
 
+        // ===== DOM 元素引用 =====
+        const startPage = document.getElementById('startPage');
+        const quizPage = document.getElementById('quizPage');
+        const resultPage = document.getElementById('resultPage');
+        const progressBar = document.getElementById('progressBar');
+        const questionNum = document.getElementById('questionNum');
+        const questionText = document.getElementById('questionText');
+        const optionsDiv = document.getElementById('options');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const resultType = document.getElementById('resultType');
+        const resultAnalysis = document.getElementById('resultAnalysis');
+        const resultTags = document.getElementById('resultTags');
+
+        // ===== 事件绑定 =====
+        document.getElementById('startBtn').addEventListener('click', startQuiz);
+        prevBtn.addEventListener('click', goPrev);
+        nextBtn.addEventListener('click', goNext);
+        document.getElementById('restartBtn').addEventListener('click', restartQuiz);
+        document.getElementById('shareBtn').addEventListener('click', shareResult);
+
         // ===== 初始化进度条 =====
         function initProgress() {
-            const bar = document.getElementById('progressBar');
-            bar.innerHTML = '';
+            progressBar.innerHTML = '';
             for (let i = 0; i < questions.length; i++) {
                 const node = document.createElement('div');
                 node.className = 'progress-node';
                 node.dataset.num = i + 1;
-                node.onclick = () => jumpTo(i);
-                bar.appendChild(node);
+                node.addEventListener('click', () => jumpTo(i));
+                progressBar.appendChild(node);
             }
         }
 
         // ===== 渲染题目 =====
         function renderQuestion() {
             const q = questions[currentQ];
-            document.getElementById('questionNum').textContent = 
-                `QUESTION ${String(currentQ + 1).padStart(2, '0')} / ${questions.length}`;
-            document.getElementById('questionText').textContent = q.text;
+            questionNum.textContent = `QUESTION ${String(currentQ + 1).padStart(2, '0')} / ${questions.length}`;
+            questionText.textContent = q.text;
             
-            const optsDiv = document.getElementById('options');
-            optsDiv.innerHTML = '';
+            optionsDiv.innerHTML = '';
             q.options.forEach((opt, idx) => {
                 const div = document.createElement('div');
                 div.className = 'option' + (answers[currentQ] === idx ? ' selected' : '');
                 div.textContent = opt.text;
-                div.onclick = () => selectOption(idx);
-                optsDiv.appendChild(div);
+                div.addEventListener('click', () => selectOption(idx));
+                optionsDiv.appendChild(div);
             });
 
             // 更新进度条
@@ -658,20 +675,15 @@
             });
 
             // 按钮状态
-            document.getElementById('prevBtn').disabled = currentQ === 0;
-            document.getElementById('nextBtn').disabled = answers[currentQ] === null;
-            document.getElementById('nextBtn').textContent = 
-                currentQ === questions.length - 1 ? '查看结果' : '下一题';
+            prevBtn.disabled = currentQ === 0;
+            nextBtn.disabled = answers[currentQ] === null;
+            nextBtn.textContent = currentQ === questions.length - 1 ? '查看结果' : '下一题';
         }
 
         // ===== 选择选项 =====
         function selectOption(idx) {
             answers[currentQ] = idx;
             renderQuestion();
-            // 自动聚焦到下一题按钮
-            setTimeout(() => {
-                document.getElementById('nextBtn').focus();
-            }, 100);
         }
 
         // ===== 导航 =====
@@ -698,8 +710,8 @@
 
         // ===== 开始测试 =====
         function startQuiz() {
-            document.getElementById('startPage').style.display = 'none';
-            document.getElementById('quizPage').classList.add('active');
+            startPage.style.display = 'none';
+            quizPage.classList.add('active');
             initProgress();
             renderQuestion();
         }
@@ -713,14 +725,12 @@
                 for (let k in s) scores[k] += s[k];
             });
 
-            // 维度判定
-            const abstract = scores.A >= 28;  // 抽象/具象
-            const holistic = scores.B >= 28;  // 整体/细节
-            const causal = scores.C >= 28;   // 因果/联想
-            const inward = scores.D >= 28;    // 内省/外察
-            const logical = scores.E >= 28;   // 逻辑/直觉
+            const abstract = scores.A >= 28;
+            const holistic = scores.B >= 28;
+            const causal = scores.C >= 28;
+            const inward = scores.D >= 28;
+            const logical = scores.E >= 28;
 
-            // 类型匹配
             if (logical && causal && !abstract && !inward) return "架构型";
             if (abstract && !logical && !causal) return "意象型";
             if (causal && !holistic && !inward) return "织网型";
@@ -734,34 +744,32 @@
             const type = calculateResult();
             const data = resultTypes[type];
             
-            document.getElementById('quizPage').classList.remove('active');
-            document.getElementById('resultPage').classList.add('active');
+            quizPage.classList.remove('active');
+            resultPage.classList.add('active');
             
-            document.getElementById('resultType').textContent = type;
+            resultType.textContent = type;
             
-            const analysisDiv = document.getElementById('resultAnalysis');
-            analysisDiv.innerHTML = `
+            resultAnalysis.innerHTML = `
                 <h3>思维轮廓</h3>
                 <p>${data.desc}</p>
                 <h3 style="margin-top:24px">基于你的答题路径</h3>
                 <p>${data.analysis}</p>
             `;
             
-            const tagsDiv = document.getElementById('resultTags');
-            tagsDiv.innerHTML = data.tags.map(t => `<span class="result-tag">${t}</span>`).join('');
+            resultTags.innerHTML = data.tags.map(t => `<span class="result-tag">${t}</span>`).join('');
         }
 
         // ===== 重新测试 =====
         function restartQuiz() {
             currentQ = 0;
             answers = new Array(questions.length).fill(null);
-            document.getElementById('resultPage').classList.remove('active');
-            document.getElementById('startPage').style.display = 'block';
+            resultPage.classList.remove('active');
+            startPage.style.display = 'block';
         }
 
         // ===== 分享结果 =====
         function shareResult() {
-            const type = document.getElementById('resultType').textContent;
+            const type = resultType.textContent;
             const text = `我的思维风格是「${type}」，来测测你的？`;
             if (navigator.share) {
                 navigator.share({ title: '思维风格测试', text: text });
@@ -774,7 +782,7 @@
 
         // ===== 键盘支持 =====
         document.addEventListener('keydown', (e) => {
-            if (!document.getElementById('quizPage').classList.contains('active')) return;
+            if (!quizPage.classList.contains('active')) return;
             if (e.key === 'ArrowLeft' && currentQ > 0) goPrev();
             if (e.key === 'ArrowRight' && answers[currentQ] !== null) goNext();
         });
